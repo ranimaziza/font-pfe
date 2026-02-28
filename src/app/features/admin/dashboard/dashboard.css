@@ -1,0 +1,65 @@
+.dashboard {
+  padding: 2rem;
+  font-family: system-ui, sans-serif;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.header p {
+  color: #666;
+}
+
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #f7f9fc;
+  padding: 1.2rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.card p {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+
+/* Actions */
+.actions-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.actions-grid a {
+  background: #4f8cff;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+
+/* Activity */
+.activity ul {
+  padding-left: 1rem;
+}
+
+.activity li {
+  margin-bottom: 0.5rem;
+}

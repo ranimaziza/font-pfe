@@ -1,0 +1,47 @@
+<nav class="navbar" *ngIf="authService.isLoggedIn()">
+  <div class="nav-brand" (click)="goToProfile()" style="cursor: pointer;">
+    <span>🇹🇳</span>
+    <span>Invest<strong>Platform</strong></span>
+  </div>
+  
+  <div class="nav-links">
+    <ng-container *ngFor="let link of navLinks">
+      <a [routerLink]="link.route"
+         routerLinkActive="active"
+         class="nav-link">
+        <span>{{ link.icon }}</span>
+        {{ link.label }}
+      </a>
+    </ng-container>
+  </div>
+  
+  <div class="nav-right">
+    <!-- Profil cliquable avec photo -->
+    <div class="profile-menu" (click)="goToProfile()">
+      <div class="avatar-container">
+        <!-- Photo de profil si disponible -->
+        <img *ngIf="getProfilePhoto()" 
+             [src]="getProfilePhoto()" 
+             (error)="handleImageError($event)"
+             alt="Photo de profil" 
+             class="avatar-image"
+             crossorigin="anonymous">
+        
+        <!-- Fallback avec initiales -->
+        <div class="avatar-fallback" 
+             [class.hidden]="getProfilePhoto()">
+          {{ userInitials }}
+        </div>
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ getDisplayName() }}</span>
+        <span class="user-email">{{ currentUser?.email }}</span>
+        <span class="user-role">{{ roleLabel }}</span>
+      </div>
+    </div>
+    
+    <button class="btn-logout" (click)="logout()">
+      🚪 Déconnexion
+    </button>
+  </div>
+</nav>
