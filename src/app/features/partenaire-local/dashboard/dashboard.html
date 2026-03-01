@@ -1,10 +1,419 @@
-<div class="dashboard-layout">
+<div class="lp-layout">
   <app-navbar></app-navbar>
 
-  <div class="dashboard">
-    <div class="dashboard-content">
-      <h1>local Partner Dashboard</h1>
-      <p>Welcome to your partner space</p>
+  <div class="lp-content">
+
+    <!-- ── Header ─────────────────────────────────── -->
+    <div class="page-header">
+      <div class="header-text">
+        <h1>My Services</h1>
+        <p>Manage your collaboration, investment, and tourism services</p>
+      </div>
+      <button class="btn-add" *ngIf="viewMode === 'list'" (click)="showAddForm()">
+        <span class="btn-icon">+</span>
+        <span>Add {{ activeTabConfig.label }} Service</span>
+      </button>
     </div>
+
+    <!-- ── Tabs ───────────────────────────────────── -->
+    <div class="tabs" *ngIf="viewMode === 'list'">
+      <button
+        *ngFor="let tab of SERVICE_TYPES"
+        class="tab-btn"
+        [class.active]="activeTab === tab.key"
+        [style.--tab-color]="tab.color"
+        (click)="setTab(tab.key)">
+        <span class="tab-icon">{{ tab.icon }}</span>
+        <span>{{ tab.label }}</span>
+        <span class="tab-count">
+          {{ tab.key === 'COLLABORATION' ? collaborationServices.length :
+             tab.key === 'INVESTMENT' ? investmentServices.length :
+             touristServices.length }}
+        </span>
+      </button>
+    </div>
+
+    <!-- ── Alerts ─────────────────────────────────── -->
+    <div class="alert alert-error" *ngIf="error">
+      <span>⚠️</span> {{ error }}
+    </div>
+    <div class="alert alert-success" *ngIf="success">
+      <span>✅</span> {{ success }}
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         LIST VIEW
+    ══════════════════════════════════════════════ -->
+    <ng-container *ngIf="viewMode === 'list'">
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner-ring"></div>
+        <p>Loading services...</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && activeServices.length === 0">
+        <div class="empty-icon">{{ activeTabConfig.icon }}</div>
+        <h3>No {{ activeTabConfig.label }} services yet</h3>
+        <p>Create your first service to get started</p>
+        <button class="btn-add-empty" (click)="showAddForm()">Add Service</button>
+      </div>
+
+      <div class="services-grid" *ngIf="!loading && activeServices.length > 0">
+        <div class="service-card" *ngFor="let svc of activeServices">
+          <div class="card-header">
+            <div class="card-icon">{{ activeTabConfig.icon }}</div>
+            <span class="status-badge" [class]="getStatusClass(svc.status)">
+              {{ getStatusIcon(svc.status) }} {{ svc.status || 'PENDING' }}
+            </span>
+          </div>
+
+          <div class="card-body">
+            <h3 class="card-title">{{ svc.name }}</h3>
+            <p class="card-description">{{ svc.description || '—' }}</p>
+
+            <div class="card-meta">
+              <span class="meta-item">
+                <span class="meta-icon">💰</span>
+                {{ svc.price | number:'1.0-0' }} TND
+              </span>
+              <span class="meta-item">
+                <span class="meta-icon">📍</span>
+                {{ svc.region?.name || '—' }}
+              </span>
+              <span class="meta-item">
+                <span class="meta-icon">🔘</span>
+                {{ svc.availability || '—' }}
+              </span>
+            </div>
+
+            <!-- Investment extras -->
+            <div class="extra-info" *ngIf="activeTab === 'INVESTMENT'">
+              <span class="extra-tag" *ngIf="svc.totalAmount">
+                Total: {{ svc.totalAmount | number:'1.0-0' }} TND
+              </span>
+              <span class="extra-tag" *ngIf="svc.deadlineDate">
+                Deadline: {{ svc.deadlineDate }}
+              </span>
+            </div>
+
+            <!-- Tourist extras -->
+            <div class="extra-info" *ngIf="activeTab === 'TOURIST'">
+              <span class="extra-tag" *ngIf="svc.category">{{ svc.category }}</span>
+              <span class="extra-tag" *ngIf="svc.durationHours">{{ svc.durationHours }}h</span>
+              <span class="extra-tag" *ngIf="svc.maxCapacity">Cap: {{ svc.maxCapacity }}</span>
+            </div>
+
+            <!-- Collaboration extras -->
+            <div class="extra-info" *ngIf="activeTab === 'COLLABORATION'">
+              <span class="extra-tag" *ngIf="svc.collaborationType">{{ svc.collaborationType }}</span>
+              <span class="extra-tag" *ngIf="svc.collaborationDuration">{{ svc.collaborationDuration }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-edit" (click)="editService(svc)">✏️ Edit</button>
+            <button class="btn-delete" (click)="deleteService(svc)">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ══════════════════════════════════════════════
+         FORM VIEW
+    ══════════════════════════════════════════════ -->
+    <ng-container *ngIf="viewMode === 'form'">
+      <div class="form-container">
+        <div class="form-header">
+          <div class="form-header-left">
+            <button class="btn-back" (click)="cancelForm()">← Back</button>
+            <h2>
+              {{ editingService ? 'Edit' : 'New' }}
+              {{ activeTabConfig.icon }} {{ activeTabConfig.label }} Service
+            </h2>
+          </div>
+        </div>
+
+        <!-- ══ COLLABORATION FORM ══ -->
+        <form *ngIf="activeTab === 'COLLABORATION'" class="service-form" (ngSubmit)="submitForm()">
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Service Name *</label>
+                <input type="text" [(ngModel)]="collaborationForm.name" name="name" required placeholder="Enter service name" />
+              </div>
+              <div class="form-group full">
+                <label>Description</label>
+                <textarea [(ngModel)]="collaborationForm.description" name="description" rows="3" placeholder="Describe your collaboration service..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Region *</label>
+                <select [(ngModel)]="collaborationForm.regionId" name="regionId" required>
+                  <option value="">Select region</option>
+                  <option *ngFor="let r of regions" [value]="r.id">{{ r.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Price (TND) *</label>
+                <input type="number" [(ngModel)]="collaborationForm.price" name="price" required min="0" />
+              </div>
+              <div class="form-group">
+                <label>Availability *</label>
+                <select [(ngModel)]="collaborationForm.availability" name="availability" required>
+                  <option *ngFor="let a of AVAILABILITY_OPTIONS" [value]="a">{{ a }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Contact Person *</label>
+                <input type="text" [(ngModel)]="collaborationForm.contactPerson" name="contactPerson" required placeholder="Full name" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Collaboration Details</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Collaboration Type</label>
+                <select [(ngModel)]="collaborationForm.collaborationType" name="collaborationType">
+                  <option value="">Select type</option>
+                  <option *ngFor="let t of COLLAB_TYPES" [value]="t">{{ t }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Activity Domain</label>
+                <input type="text" [(ngModel)]="collaborationForm.activityDomain" name="activityDomain" placeholder="e.g. Agriculture, Tech..." />
+              </div>
+              <div class="form-group">
+                <label>Duration</label>
+                <input type="text" [(ngModel)]="collaborationForm.collaborationDuration" name="collaborationDuration" placeholder="e.g. 6 months, 1 year..." />
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <input type="text" [(ngModel)]="collaborationForm.address" name="address" placeholder="Location address" />
+              </div>
+              <div class="form-group full">
+                <label>Expected Benefits</label>
+                <textarea [(ngModel)]="collaborationForm.expectedBenefits" name="expectedBenefits" rows="2" placeholder="What benefits do you offer..."></textarea>
+              </div>
+              <div class="form-group full">
+                <label>Required Skills</label>
+                <div class="tag-input-row">
+                  <input type="text" [(ngModel)]="skillInput" name="skillInput" placeholder="Type a skill and press Enter"
+                    (keydown.enter)="$event.preventDefault(); addSkill()" />
+                  <button type="button" class="btn-tag-add" (click)="addSkill()">Add</button>
+                </div>
+                <div class="tags-list">
+                  <span class="tag" *ngFor="let skill of collaborationForm.requiredSkills">
+                    {{ skill }}
+                    <button type="button" class="tag-remove" (click)="removeSkill(skill)">×</button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="saving">
+              <span *ngIf="!saving">{{ editingService ? 'Update Service' : 'Create Service' }}</span>
+              <span *ngIf="saving" class="saving-dots">Saving<span>.</span><span>.</span><span>.</span></span>
+            </button>
+          </div>
+        </form>
+
+        <!-- ══ INVESTMENT FORM ══ -->
+        <form *ngIf="activeTab === 'INVESTMENT'" class="service-form" (ngSubmit)="submitForm()">
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Name *</label>
+                <input type="text" [(ngModel)]="investmentForm.name" name="name" required placeholder="Service name" />
+              </div>
+              <div class="form-group">
+                <label>Investment Title *</label>
+                <input type="text" [(ngModel)]="investmentForm.title" name="title" required placeholder="Investment opportunity title" />
+              </div>
+              <div class="form-group full">
+                <label>Description</label>
+                <textarea [(ngModel)]="investmentForm.description" name="description" rows="3" placeholder="Describe the investment opportunity..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Region *</label>
+                <select [(ngModel)]="investmentForm.regionId" name="regionId" required>
+                  <option value="">Select region</option>
+                  <option *ngFor="let r of regions" [value]="r.id">{{ r.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Economic Sector</label>
+                <select [(ngModel)]="investmentForm.economicSectorId" name="economicSectorId">
+                  <option value="">Select sector</option>
+                  <option *ngFor="let s of economicSectors" [value]="s.id">{{ s.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Service Price (TND) *</label>
+                <input type="number" [(ngModel)]="investmentForm.price" name="price" required min="0" />
+              </div>
+              <div class="form-group">
+                <label>Availability *</label>
+                <select [(ngModel)]="investmentForm.availability" name="availability" required>
+                  <option *ngFor="let a of AVAILABILITY_OPTIONS" [value]="a">{{ a }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Contact Person *</label>
+                <input type="text" [(ngModel)]="investmentForm.contactPerson" name="contactPerson" required placeholder="Full name" />
+              </div>
+              <div class="form-group">
+                <label>Zone</label>
+                <input type="text" [(ngModel)]="investmentForm.zone" name="zone" placeholder="Specific zone or area" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Financial Details</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Total Amount (TND)</label>
+                <input type="number" [(ngModel)]="investmentForm.totalAmount" name="totalAmount" min="0" placeholder="0" />
+              </div>
+              <div class="form-group">
+                <label>Minimum Investment (TND)</label>
+                <input type="number" [(ngModel)]="investmentForm.minimumAmount" name="minimumAmount" min="0" placeholder="0" />
+              </div>
+              <div class="form-group">
+                <label>Deadline Date</label>
+                <input type="date" [(ngModel)]="investmentForm.deadlineDate" name="deadlineDate" />
+              </div>
+              <div class="form-group">
+                <label>Project Duration</label>
+                <input type="text" [(ngModel)]="investmentForm.projectDuration" name="projectDuration" placeholder="e.g. 2 years, 18 months..." />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="saving">
+              <span *ngIf="!saving">{{ editingService ? 'Update Service' : 'Create Service' }}</span>
+              <span *ngIf="saving" class="saving-dots">Saving<span>.</span><span>.</span><span>.</span></span>
+            </button>
+          </div>
+        </form>
+
+        <!-- ══ TOURIST FORM ══ -->
+        <form *ngIf="activeTab === 'TOURIST'" class="service-form" (ngSubmit)="submitForm()">
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Service Name *</label>
+                <input type="text" [(ngModel)]="touristForm.name" name="name" required placeholder="e.g. Guided Desert Tour" />
+              </div>
+              <div class="form-group full">
+                <label>Description</label>
+                <textarea [(ngModel)]="touristForm.description" name="description" rows="3" placeholder="Describe your tourist service..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Region *</label>
+                <select [(ngModel)]="touristForm.regionId" name="regionId" required>
+                  <option value="">Select region</option>
+                  <option *ngFor="let r of regions" [value]="r.id">{{ r.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select [(ngModel)]="touristForm.category" name="category">
+                  <option value="">Select category</option>
+                  <option *ngFor="let c of CATEGORIES" [value]="c">{{ c }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Price per Person (TND) *</label>
+                <input type="number" [(ngModel)]="touristForm.price" name="price" required min="0" />
+              </div>
+              <div class="form-group">
+                <label>Group Price (TND)</label>
+                <input type="number" [(ngModel)]="touristForm.groupPrice" name="groupPrice" min="0" />
+              </div>
+              <div class="form-group">
+                <label>Availability *</label>
+                <select [(ngModel)]="touristForm.availability" name="availability" required>
+                  <option *ngFor="let a of AVAILABILITY_OPTIONS" [value]="a">{{ a }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Contact Person *</label>
+                <input type="text" [(ngModel)]="touristForm.contactPerson" name="contactPerson" required placeholder="Full name" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Service Details</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Target Audience</label>
+                <select [(ngModel)]="touristForm.targetAudience" name="targetAudience">
+                  <option value="">Select audience</option>
+                  <option *ngFor="let a of TARGET_AUDIENCES" [value]="a">{{ a }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Duration (hours)</label>
+                <input type="number" [(ngModel)]="touristForm.durationHours" name="durationHours" min="0" />
+              </div>
+              <div class="form-group">
+                <label>Max Capacity</label>
+                <input type="number" [(ngModel)]="touristForm.maxCapacity" name="maxCapacity" min="0" />
+              </div>
+              <div class="form-group full">
+                <label>Included Services</label>
+                <div class="tag-input-row">
+                  <input type="text" [(ngModel)]="includedServiceInput" name="includedServiceInput"
+                    placeholder="e.g. Breakfast, Transport..."
+                    (keydown.enter)="$event.preventDefault(); addIncludedService()" />
+                  <button type="button" class="btn-tag-add" (click)="addIncludedService()">Add</button>
+                </div>
+                <div class="tags-list">
+                  <span class="tag" *ngFor="let s of touristForm.includedServices">
+                    {{ s }}
+                    <button type="button" class="tag-remove" (click)="removeIncludedService(s)">×</button>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group full">
+                <label>Available Languages</label>
+                <div class="tag-input-row">
+                  <input type="text" [(ngModel)]="languageInput" name="languageInput"
+                    placeholder="e.g. English, French..."
+                    (keydown.enter)="$event.preventDefault(); addLanguage()" />
+                  <button type="button" class="btn-tag-add" (click)="addLanguage()">Add</button>
+                </div>
+                <div class="tags-list">
+                  <span class="tag" *ngFor="let l of touristForm.availableLanguages">
+                    {{ l }}
+                    <button type="button" class="tag-remove" (click)="removeLanguage(l)">×</button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="saving">
+              <span *ngIf="!saving">{{ editingService ? 'Update Service' : 'Create Service' }}</span>
+              <span *ngIf="saving" class="saving-dots">Saving<span>.</span><span>.</span><span>.</span></span>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </ng-container>
+
   </div>
 </div>
