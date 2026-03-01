@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
@@ -8,7 +9,7 @@ import { NotificationBellComponent } from '../../../shared/notification-bell/not
 @Component({
   selector: 'app-investor-services',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavbarComponent, NotificationBellComponent],
+  imports: [CommonModule, FormsModule, RouterModule, NavbarComponent, NotificationBellComponent],
   template: `
     <div class="page-layout">
       <app-navbar></app-navbar>
@@ -25,6 +26,27 @@ import { NotificationBellComponent } from '../../../shared/notification-bell/not
             <app-notification-bell></app-notification-bell>
           </div>
 
+          <!-- Search Bar -->
+          <div class="search-wrapper">
+            <div class="search-box">
+              <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearch()"
+                placeholder="Search by title, description, zone, region, contact, duration..."
+                class="search-input"
+              />
+              <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">✕</button>
+            </div>
+            <span class="results-count" *ngIf="searchQuery">
+              {{ filtered.length }} result{{ filtered.length !== 1 ? 's' : '' }} found
+            </span>
+          </div>
+
           <!-- Loading -->
           <div class="loading-state" *ngIf="loading">
             <div class="spinner"></div>
@@ -32,15 +54,16 @@ import { NotificationBellComponent } from '../../../shared/notification-bell/not
           </div>
 
           <!-- Empty -->
-          <div class="empty-state" *ngIf="!loading && services.length === 0">
-            <div class="empty-icon">📈</div>
-            <h3>No investment services available yet</h3>
-            <p>Check back later for new opportunities</p>
+          <div class="empty-state" *ngIf="!loading && filtered.length === 0">
+            <div class="empty-icon">{{ searchQuery ? '🔍' : '📈' }}</div>
+            <h3>{{ searchQuery ? 'No results for "' + searchQuery + '"' : 'No investment services available yet' }}</h3>
+            <p>{{ searchQuery ? 'Try different keywords' : 'Check back later for new opportunities' }}</p>
+            <button class="clear-search-btn" *ngIf="searchQuery" (click)="clearSearch()">Clear search</button>
           </div>
 
           <!-- Services Grid -->
-          <div class="services-grid" *ngIf="!loading && services.length > 0">
-            <div class="service-card" *ngFor="let s of services">
+          <div class="services-grid" *ngIf="!loading && filtered.length > 0">
+            <div class="service-card" *ngFor="let s of filtered">
               <div class="card-top">
                 <span class="card-type">📈 Investment</span>
                 <span class="card-zone" *ngIf="s.zone">{{ s.zone }}</span>
@@ -73,6 +96,10 @@ import { NotificationBellComponent } from '../../../shared/notification-bell/not
                   <span class="meta-label">👤 Contact:</span>
                   <span>{{ s.contactPerson }}</span>
                 </div>
+                <div class="card-meta" *ngIf="s.economicSector">
+                  <span class="meta-label">🏭 Sector:</span>
+                  <span>{{ s.economicSector.name }}</span>
+                </div>
               </div>
               <div class="card-footer">
                 <span class="availability-badge">{{ s.availability }}</span>
@@ -98,10 +125,43 @@ import { NotificationBellComponent } from '../../../shared/notification-bell/not
     h1::after { content: ''; display: block; width: 60px; height: 4px; background: linear-gradient(90deg, #2563eb, #7c3aed); margin-top: 0.4rem; border-radius: 2px; }
     .subtitle { color: #64748b; margin: 0; }
 
+    /* Search */
+    .search-wrapper { margin-bottom: 1.5rem; }
+    .search-box {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: white; border: 1.5px solid #e2e8f0;
+      border-radius: 14px; padding: 0.75rem 1.1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box:focus-within {
+      border-color: #2563eb;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+    }
+    .search-icon { color: #94a3b8; flex-shrink: 0; }
+    .search-input {
+      flex: 1; border: none; outline: none;
+      font-size: 0.95rem; color: #0f172a;
+      background: transparent;
+    }
+    .search-input::placeholder { color: #94a3b8; }
+    .clear-btn {
+      background: none; border: none; color: #94a3b8;
+      cursor: pointer; font-size: 0.9rem; padding: 0 0.25rem;
+      transition: color 0.2s;
+    }
+    .clear-btn:hover { color: #dc2626; }
+    .results-count { display: block; margin-top: 0.5rem; font-size: 0.85rem; color: #64748b; padding-left: 0.25rem; }
+
     .loading-state, .empty-state { text-align: center; padding: 4rem; background: white; border-radius: 16px; }
     .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
     .empty-state h3 { color: #0f172a; margin-bottom: 0.5rem; }
-    .empty-state p { color: #64748b; }
+    .empty-state p { color: #64748b; margin-bottom: 1.5rem; }
+    .clear-search-btn {
+      padding: 0.6rem 1.4rem; background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white; border: none; border-radius: 10px;
+      font-weight: 600; cursor: pointer;
+    }
     .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -135,6 +195,8 @@ import { NotificationBellComponent } from '../../../shared/notification-bell/not
 export class InvestorServicesComponent implements OnInit {
 
   services: any[] = [];
+  filtered: any[] = [];
+  searchQuery = '';
   loading = false;
 
   private http = inject(HttpClient);
@@ -153,8 +215,39 @@ export class InvestorServicesComponent implements OnInit {
     this.http.get<any[]>('http://localhost:8089/api/investment-services/approved',
       { headers: this.getHeaders() }
     ).subscribe({
-      next: (data) => { this.services = data; this.loading = false; },
+      next: (data) => {
+        this.services = data;
+        this.filtered = data;
+        this.loading = false;
+      },
       error: () => { this.loading = false; }
     });
+  }
+
+  onSearch(): void {
+    const q = this.searchQuery.toLowerCase().trim();
+    if (!q) {
+      this.filtered = this.services;
+      return;
+    }
+    this.filtered = this.services.filter(s => {
+      return [
+        s.title, s.name, s.description, s.zone,
+        s.contactPerson, s.projectDuration,
+        s.availability, s.type,
+        s.region?.name,
+        s.economicSector?.name,
+        s.provider?.firstName, s.provider?.lastName,
+        s.totalAmount?.toString(),
+        s.minimumAmount?.toString(),
+        s.price?.toString(),
+        s.deadlineDate
+      ].some(val => val && val.toString().toLowerCase().includes(q));
+    });
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.filtered = this.services;
   }
 }
