@@ -18,6 +18,7 @@ type ViewMode = 'list' | 'form';
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
+  searchQuery = '';
   activeTab: ServiceType = 'COLLABORATION';
   viewMode: ViewMode = 'list';
   loading = false;
@@ -172,11 +173,12 @@ readonly TARGET_AUDIENCES = ['BUSINESS', 'TOURIST', 'STUDENT', 'FAMILY', 'VIP'];
     }
 
     if (tourists.status === 'fulfilled') {
-      this.touristServices = Array.isArray(tourists.value) ? tourists.value : [];
-    } else {
-      console.warn('⚠️ Tourist services failed:', (tourists as any).reason);
-      this.touristServices = [];
-    }
+  this.touristServices = Array.isArray(tourists.value) ? tourists.value : [];
+  console.log('TOURIST DATA:', JSON.stringify(this.touristServices[0], null, 2)); // ← ajoute ici
+} else {
+  console.warn('⚠️ Tourist services failed:', (tourists as any).reason);
+  this.touristServices = [];
+}
 
     console.log('✅ Services loaded:', {
       collaboration: this.collaborationServices.length,
@@ -203,10 +205,46 @@ readonly TARGET_AUDIENCES = ['BUSINESS', 'TOURIST', 'STUDENT', 'FAMILY', 'VIP'];
   setTab(tab: ServiceType) { this.activeTab = tab; this.cancelForm(); }
 
   get activeServices(): any[] {
-    if (this.activeTab === 'COLLABORATION') return this.collaborationServices;
-    if (this.activeTab === 'INVESTMENT')    return this.investmentServices;
-    return this.touristServices;
+  let services: any[] = [];
+  if (this.activeTab === 'COLLABORATION') services = this.collaborationServices;
+  else if (this.activeTab === 'INVESTMENT') services = this.investmentServices;
+  else services = this.touristServices;
+
+  if (!this.searchQuery.trim()) return services;
+
+  // découpe la phrase en mots individuels, ignore les mots vides < 2 chars
+  const words = this.searchQuery
+    .toLowerCase()
+    .trim()
+    .replace(/[\s,]+/g, ' ')
+    .split(' ')
+    .filter(w => w.length >= 1);
+
+  // un service matche si TOUS les mots sont trouvés quelque part dans ses champs
+  return services.filter(s => words.every(word => this.matchesSearch(s, word)));
+}
+
+private matchesSearch(obj: any, query: string, depth: number = 0): boolean {
+  if (depth > 2) return false; // stoppe la récursion profonde
+  if (obj === null || obj === undefined) return false;
+  if (typeof obj === 'string') return obj.toLowerCase().includes(query);
+  if (typeof obj === 'number') return String(obj).includes(query);
+  if (typeof obj === 'boolean') return false;
+  if (Array.isArray(obj)) {
+    return obj.some(item => this.matchesSearch(item, query, depth + 1));
   }
+  if (typeof obj === 'object') {
+    const ignored = ['id', 'createdAt', 'publicationDate', 'providerId',
+                     'regionId', 'economicSectorId', 'provider',
+                     'collaborationServices', 'investmentServices', 'touristServices',
+                     'interestedInvestors', 'attachedDocuments'];
+    return Object.entries(obj).some(([key, val]) => {
+      if (ignored.includes(key)) return false;
+      return this.matchesSearch(val, query, depth + 1);
+    });
+  }
+  return false;
+}
 
   get activeTabConfig() {
     return this.SERVICE_TYPES.find(t => t.key === this.activeTab)!;
