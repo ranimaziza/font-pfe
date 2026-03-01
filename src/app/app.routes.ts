@@ -83,6 +83,11 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/investisseur/dashboard/dashboard')
           .then(m => m.DashboardComponent)
+      },
+      {
+        path: 'services',
+        loadComponent: () => import('./features/investisseur/services/services.component')
+          .then(m => m.InvestorServicesComponent)
       }
     ]
   },
@@ -97,6 +102,10 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/partenaire-economique/dashboard/dashboard')
           .then(m => m.DashboardComponent)
+      },{
+        path: 'services',
+        loadComponent: () => import('./features/partenaire-economique/services/services.components')
+          .then(m => m.EconomicPartnerServicesComponent)
       }
     ]
   },

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { NotificationService, AppNotification } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth';
 import { Role } from '../models/user.model';
@@ -25,12 +26,17 @@ import { switchMap } from 'rxjs/operators';
       </button>
 
       <div class="notif-panel" *ngIf="panelOpen">
+
         <div class="panel-header">
           <span>Notifications</span>
-          <button class="mark-all-btn" (click)="markAllRead()" *ngIf="unreadCount > 0">
-            Mark all read
-          </button>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button class="view-all-btn" (click)="goToServices()">View services</button>
+            <button class="mark-all-btn" (click)="markAllRead()" *ngIf="unreadCount > 0">
+              Mark all read
+            </button>
+          </div>
         </div>
+
         <div class="panel-body">
           <div class="notif-empty" *ngIf="notifications.length === 0">
             No notifications
@@ -103,6 +109,16 @@ import { switchMap } from 'rxjs/operators';
     }
     .mark-all-btn:hover { text-decoration: underline; }
 
+    .view-all-btn {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white; border: none;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .view-all-btn:hover { opacity: 0.85; }
+
     .panel-body { max-height: 380px; overflow-y: auto; }
 
     .notif-empty {
@@ -143,6 +159,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   private notifService = inject(NotificationService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     const role = this.authService.getUserRole();
@@ -186,6 +203,18 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   markAllRead(): void {
     this.notifService.markAllAsRead().subscribe();
     this.notifications.forEach(n => n.read = true);
+  }
+
+  goToServices(): void {
+    const role = this.authService.getUserRole();
+    this.panelOpen = false;
+    if (role === Role.INVESTOR) {
+      this.router.navigate(['/investisseur/services']);
+    } else if (role === Role.PARTNER) {
+      this.router.navigate(['/partenaire-economique/services']);
+    } else if (role === Role.TOURIST) {
+      this.router.navigate(['/touriste/services']);
+    }
   }
 
   getIcon(type?: string): string {
