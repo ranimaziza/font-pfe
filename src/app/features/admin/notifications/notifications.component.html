@@ -1,0 +1,193 @@
+<div class="notifications-layout">
+  <app-navbar></app-navbar>
+
+  <div class="notifications-page">
+    <div class="page-content">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-left">
+          <a routerLink="/admin/dashboard" class="back-link">← Back to Dashboard</a>
+          <h1>Service Notifications</h1>
+          <p class="subtitle">Review and validate services submitted by local partners</p>
+        </div>
+        <div class="header-right">
+          <button class="refresh-btn" (click)="loadPendingServices()" [disabled]="loading">
+            ↻ Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="alert success-alert" *ngIf="successMsg">
+        <span>✓ {{ successMsg }}</span>
+        <button (click)="successMsg = ''">✕</button>
+      </div>
+      <div class="alert error-alert" *ngIf="errorMsg">
+        <span>⚠ {{ errorMsg }}</span>
+        <button (click)="errorMsg = ''">✕</button>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" *ngIf="!loading">
+        <div class="stat-pill total">
+          <span class="pill-count">{{ totalPending }}</span>
+          <span class="pill-label">Total Pending</span>
+        </div>
+        <div class="stat-pill collab">
+          <span class="pill-count">{{ pendingServices.collaboration.length }}</span>
+          <span class="pill-label">Collaboration</span>
+        </div>
+        <div class="stat-pill invest">
+          <span class="pill-count">{{ pendingServices.investment.length }}</span>
+          <span class="pill-label">Investment</span>
+        </div>
+        <div class="stat-pill tourist">
+          <span class="pill-count">{{ pendingServices.tourist.length }}</span>
+          <span class="pill-label">Tourist</span>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading pending services...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && totalPending === 0">
+        <div class="empty-icon">🎉</div>
+        <h3>All caught up!</h3>
+        <p>No services are waiting for review.</p>
+      </div>
+
+      <!-- Services Sections -->
+      <div class="services-wrapper" *ngIf="!loading && totalPending > 0">
+
+        <!-- Collaboration Services -->
+        <div class="service-section" *ngIf="pendingServices.collaboration.length > 0">
+          <div class="section-header collab-header">
+            <div class="section-title">
+              <span class="section-icon">🤝</span>
+              <h2>Collaboration Services</h2>
+              <span class="count-badge">{{ pendingServices.collaboration.length }}</span>
+            </div>
+          </div>
+          <div class="cards-grid">
+            <div class="service-card" *ngFor="let svc of pendingServices.collaboration">
+              <div class="card-top collab-accent">
+                <div class="service-type-tag">Collaboration</div>
+                <div class="service-date">{{ formatDate(svc.createdAt || svc.submittedAt) }}</div>
+              </div>
+              <div class="card-body">
+                <h3 class="service-name">{{ svc.name || svc.title || 'Untitled Service' }}</h3>
+                <p class="service-desc">{{ svc.description | slice:0:120 }}{{ svc.description?.length > 120 ? '...' : '' }}</p>
+                <div class="meta-row" *ngIf="svc.provider">
+                  <span class="meta-label">Provider:</span>
+                  <span class="meta-value">{{ svc.provider.firstName }} {{ svc.provider.lastName }}</span>
+                </div>
+                <div class="meta-row" *ngIf="svc.price">
+                  <span class="meta-label">Price:</span>
+                  <span class="meta-value">{{ svc.price }} TND</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-reject" (click)="rejectService('collaboration', svc.id)" [disabled]="processingId === svc.id">
+                  <span *ngIf="processingId !== svc.id">✕ Reject</span>
+                  <span *ngIf="processingId === svc.id">...</span>
+                </button>
+                <button class="btn-approve" (click)="approveService('collaboration', svc.id)" [disabled]="processingId === svc.id">
+                  <span *ngIf="processingId !== svc.id">✓ Approve</span>
+                  <span *ngIf="processingId === svc.id">...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Investment Services -->
+        <div class="service-section" *ngIf="pendingServices.investment.length > 0">
+          <div class="section-header invest-header">
+            <div class="section-title">
+              <span class="section-icon">📈</span>
+              <h2>Investment Services</h2>
+              <span class="count-badge">{{ pendingServices.investment.length }}</span>
+            </div>
+          </div>
+          <div class="cards-grid">
+            <div class="service-card" *ngFor="let svc of pendingServices.investment">
+              <div class="card-top invest-accent">
+                <div class="service-type-tag">Investment</div>
+                <div class="service-date">{{ formatDate(svc.createdAt || svc.submittedAt) }}</div>
+              </div>
+              <div class="card-body">
+                <h3 class="service-name">{{ svc.name || svc.title || 'Untitled Service' }}</h3>
+                <p class="service-desc">{{ svc.description | slice:0:120 }}{{ svc.description?.length > 120 ? '...' : '' }}</p>
+                <div class="meta-row" *ngIf="svc.provider">
+                  <span class="meta-label">Provider:</span>
+                  <span class="meta-value">{{ svc.provider.firstName }} {{ svc.provider.lastName }}</span>
+                </div>
+                <div class="meta-row" *ngIf="svc.minInvestment">
+                  <span class="meta-label">Min Investment:</span>
+                  <span class="meta-value">{{ svc.minInvestment }} TND</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-reject" (click)="rejectService('investment', svc.id)" [disabled]="processingId === svc.id">
+                  <span *ngIf="processingId !== svc.id">✕ Reject</span>
+                  <span *ngIf="processingId === svc.id">...</span>
+                </button>
+                <button class="btn-approve" (click)="approveService('investment', svc.id)" [disabled]="processingId === svc.id">
+                  <span *ngIf="processingId !== svc.id">✓ Approve</span>
+                  <span *ngIf="processingId === svc.id">...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tourist Services -->
+        <div class="service-section" *ngIf="pendingServices.tourist.length > 0">
+          <div class="section-header tourist-header">
+            <div class="section-title">
+              <span class="section-icon">🌍</span>
+              <h2>Tourist Services</h2>
+              <span class="count-badge">{{ pendingServices.tourist.length }}</span>
+            </div>
+          </div>
+          <div class="cards-grid">
+            <div class="service-card" *ngFor="let svc of pendingServices.tourist">
+              <div class="card-top tourist-accent">
+                <div class="service-type-tag">Tourist</div>
+                <div class="service-date">{{ formatDate(svc.createdAt || svc.submittedAt) }}</div>
+              </div>
+              <div class="card-body">
+                <h3 class="service-name">{{ svc.name || svc.title || 'Untitled Service' }}</h3>
+                <p class="service-desc">{{ svc.description | slice:0:120 }}{{ svc.description?.length > 120 ? '...' : '' }}</p>
+                <div class="meta-row" *ngIf="svc.provider">
+                  <span class="meta-label">Provider:</span>
+                  <span class="meta-value">{{ svc.provider.firstName }} {{ svc.provider.lastName }}</span>
+                </div>
+                <div class="meta-row" *ngIf="svc.price">
+                  <span class="meta-label">Price:</span>
+                  <span class="meta-value">{{ svc.price }} TND</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-reject" (click)="rejectService('tourist', svc.id)" [disabled]="processingId === svc.id">
+                  <span *ngIf="processingId !== svc.id">✕ Reject</span>
+                  <span *ngIf="processingId === svc.id">...</span>
+                </button>
+                <button class="btn-approve" (click)="approveService('tourist', svc.id)" [disabled]="processingId === svc.id">
+                  <span *ngIf="processingId !== svc.id">✓ Approve</span>
+                  <span *ngIf="processingId === svc.id">...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

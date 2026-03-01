@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard'; 
 import { roleGuard } from './core/guards/role-guard';
 import { Role } from './shared/models/user.model';
+import { AdminNotificationsComponent } from './features/admin/notifications/notifications.component';
 
 export const routes: Routes = [
 
@@ -49,13 +50,12 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./features/admin/users/users.component')
           .then(m => m.AdminUsersComponent)
-      }
-      //  Vous pouvez ajouter d'autres routes admin ici
-      // {
-      //   path: 'settings',
-      //   loadComponent: () => import('./features/admin/settings/settings.component')
-      //     .then(m => m.AdminSettingsComponent)
-      // }
+      },
+      {
+  path: 'notifications',
+  component:AdminNotificationsComponent
+  // add canActivate: [AuthGuard] if you have a guard
+}
     ]
   },
 
