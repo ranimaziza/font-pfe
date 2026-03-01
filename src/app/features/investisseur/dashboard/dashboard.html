@@ -1,45 +1,39 @@
 <div class="dashboard-layout">
-  <!-- Navbar verticale -->
   <app-navbar class="dashboard-navbar"></app-navbar>
-
-  <!-- Contenu principal -->
   <main class="dashboard-main">
     <div class="dashboard-content">
-      <header class="dashboard-header">
-        <h1>Investor Dashboard</h1>
-        <p class="welcome-text">Welcome back! Here's your overview</p>
+
+      <header class="dashboard-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h1>Investor Dashboard</h1>
+          <p class="welcome-text">Welcome back! Here's your overview</p>
+        </div>
+        <app-notification-bell></app-notification-bell>
       </header>
-      
+
       <div class="stats-grid">
         <div class="stat-card">
-          
           <div class="stat-details">
             <h3>Active Investments</h3>
             <p class="stat-value">0</p>
             <span class="stat-trend">+0% this month</span>
           </div>
         </div>
-
         <div class="stat-card">
-         
           <div class="stat-details">
             <h3>Opportunities</h3>
             <p class="stat-value">0</p>
             <span class="stat-trend">0 new</span>
           </div>
         </div>
-
         <div class="stat-card">
-         
           <div class="stat-details">
             <h3>Appointments</h3>
             <p class="stat-value">0</p>
             <span class="stat-trend">0 upcoming</span>
           </div>
         </div>
-
         <div class="stat-card">
-        
           <div class="stat-details">
             <h3>Total Invested</h3>
             <p class="stat-value">0 TND</p>
@@ -48,7 +42,6 @@
         </div>
       </div>
 
-      <!-- Section des activités récentes -->
       <section class="recent-activity">
         <h2>Recent Activity</h2>
         <div class="activity-list">
@@ -62,9 +55,6 @@
         </div>
       </section>
 
-     
-      
-         
     </div>
   </main>
 </div>

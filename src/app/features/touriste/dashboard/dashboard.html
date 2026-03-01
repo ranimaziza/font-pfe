@@ -1,12 +1,16 @@
 <div class="dashboard-container">
-  <!-- Navbar with clickable profile -->
   <app-navbar></app-navbar>
-
-  <!-- Main content -->
   <main class="dashboard-content">
-    <h1>Tourist Dashboard</h1>
-    <p>Discover the best destinations in Tunisia.</p>
-    
+
+    <!-- Header avec cloche -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <h1>Tourist Dashboard</h1>
+        <p>Discover the best destinations in Tunisia.</p>
+      </div>
+      <app-notification-bell></app-notification-bell>
+    </div>
+
     <div class="stats-cards">
       <div class="stat-card">
         <h3>Saved Destinations</h3>

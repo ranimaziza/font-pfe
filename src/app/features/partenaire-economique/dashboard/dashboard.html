@@ -1,12 +1,15 @@
 <div class="dashboard-container">
-  <!-- Navbar with clickable profile -->
   <app-navbar></app-navbar>
-
-  <!-- Main content -->
   <main class="dashboard-content">
-    <h1>Economic Partner Dashboard</h1>
-    <p>Manage your economic partnerships.</p>
-    
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <h1>Economic Partner Dashboard</h1>
+        <p>Manage your economic partnerships.</p>
+      </div>
+      <app-notification-bell></app-notification-bell>
+    </div>
+
     <div class="stats-cards">
       <div class="stat-card">
         <h3>Active Partnerships</h3>

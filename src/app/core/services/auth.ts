@@ -240,22 +240,28 @@ export class AuthService {
           lastName: data.nom,
           role: data.role,
           telephone: data.telephone || '',
-          nationalite: data.nationality || ''
+          nationalite: data.nationality || '',
+          profilePhoto: ''
         };
         break;
 
-      case Role.INVESTOR:
-        payload = {
-          email: data.email,
-          password: data.motDePasse,
-          firstName: data.prenom,
-          lastName: data.nom,
-          role: data.role,
-          telephone: data.telephone || '',
-          company: data.companyName || '',
-          activitySector: data.secteurActivite || ''
-        };
-        break;
+case Role.INVESTOR:
+      payload = {
+        email: data.email,
+        password: data.motDePasse,
+        firstName: data.prenom,
+        lastName: data.nom,
+        role: data.role,
+        telephone: data.telephone || '',
+        company: data.companyName || '',
+        activitySector: data.secteurActivite || '',
+        originCountry: data.paysOrigine || '', // Ajout du champ manquant
+        linkedinProfile: data.linkedinProfile || '', // Ajout du champ manquant
+        website: data.website || '', // Ajout du champ manquant
+        nationality: data.nationality || '', // Ajout du champ manquant
+        profilePicture: '' // ✅ AJOUT CRUCIAL - Champ requis par la BDD
+      };
+      break;
 
       case Role.PARTNER:
         payload = {
@@ -268,7 +274,9 @@ export class AuthService {
           paysOrigine: data.paysOrigine || '',
           secteurActivite: data.secteurActivite || '',
           adresseSiege: data.adresse || '',
-          siteWeb: data.website || ''
+          siteWeb: data.website || '',
+          profilePhoto: '' // Ajout du champ photo
+
         };
         break;
 
@@ -283,7 +291,8 @@ export class AuthService {
           domaineActivite: data.secteurActivite || '',
           numeroRegistreCommerce: data.numeroRegistreCommerce || '',
           taxeProfessionnelle: data.taxeProfessionnelle || '',
-          siteWeb: data.website || ''
+          siteWeb: data.website || '',
+          profilePhoto: '' // Ajout du champ photo
         };
         break;
 
@@ -301,7 +310,8 @@ export class AuthService {
           website: data.website || '',
           linkedinProfile: data.linkedinProfile || '',
           interetPrincipal: data.interetPrincipal || '',
-          siret: data.siret || ''
+          siret: data.siret || '',
+          profilePhoto: '' // Ajout du champ photo
         };
         break;
 
