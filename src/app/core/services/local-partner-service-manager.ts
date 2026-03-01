@@ -85,15 +85,11 @@ export class LocalPartnerServiceManager {
   }
 
   getTouristServicesByProvider(providerId: number): Observable<any[]> {
-    // Try the provider endpoint — if your controller doesn't have it, use getAll and filter
-    return this.http.get<any[]>(
-      `${this.API_URL}/tourist-services`,
-      { headers: this.getHeaders() }
-    ).pipe(
-      map((services: any[]) => services.filter(s => s.provider?.id === providerId || s.providerId === providerId)),
-      catchError(() => of([]))
-    );
-  }
+  return this.http.get<any[]>(
+    `${this.API_URL}/tourist-services/provider/${providerId}`,
+    { headers: this.getHeaders() }
+  ).pipe(catchError(() => of([])));
+}
 
   deleteTouristService(id: number): Observable<any> {
     return this.http.delete(`${this.API_URL}/tourist-services/${id}`, { headers: this.getHeaders() });

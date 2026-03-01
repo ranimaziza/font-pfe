@@ -50,8 +50,7 @@ export class DashboardComponent implements OnInit {
   readonly AVAILABILITY_OPTIONS = ['IMMEDIATE', 'ON_DEMAND', 'UPCOMING'];
   readonly COLLAB_TYPES = ['PARTNERSHIP', 'JOINT_VENTURE', 'SUBCONTRACTING', 'FRANCHISE', 'LICENSING', 'OTHER'];
   readonly CATEGORIES = ['HOTEL', 'RESTAURANT', 'ACTIVITY', 'TRANSPORT', 'GUIDE', 'OTHER'];
-  readonly TARGET_AUDIENCES = ['FAMILY', 'SOLO', 'COUPLE', 'GROUP', 'BUSINESS'];
-
+readonly TARGET_AUDIENCES = ['BUSINESS', 'TOURIST', 'STUDENT', 'FAMILY', 'VIP'];
   constructor(
     private authService: AuthService,
     private serviceManager: LocalPartnerServiceManager,
