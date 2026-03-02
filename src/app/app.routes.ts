@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { roleGuard } from './core/guards/role-guard';
 import { Role } from './shared/models/user.model';
 import { AdminNotificationsComponent } from './features/admin/notifications/notifications.component';
+import { InboxComponent } from './shared/inbox/inbox.component';
 
 export const routes: Routes = [
 
@@ -141,6 +142,11 @@ export const routes: Routes = [
           .then(m => m.DashboardComponent)
       }
     ]
+  },{
+    path: 'messagerie',
+    component: InboxComponent,
+    // Optionally add your auth guard:
+    // canActivate: [AuthGuard]
   },
 
   // ── Wildcard ──────────────────────────────────────
