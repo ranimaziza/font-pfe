@@ -9,10 +9,14 @@
         <h1>My Services</h1>
         <p>Manage your collaboration, investment, and tourism services</p>
       </div>
-      <button class="btn-add" *ngIf="viewMode === 'list'" (click)="showAddForm()">
-        <span class="btn-icon">+</span>
-        <span>Add {{ activeTabConfig.label }} Service</span>
-      </button>
+
+      <div class="header-actions">
+        <app-notification-bell></app-notification-bell>
+        <button class="btn-add" *ngIf="viewMode === 'list'" (click)="showAddForm()">
+          <span class="btn-icon">+</span>
+          <span>Add {{ activeTabConfig.label }} Service</span>
+        </button>
+      </div>
     </div>
 
     <!-- ── Tabs ───────────────────────────────────── -->

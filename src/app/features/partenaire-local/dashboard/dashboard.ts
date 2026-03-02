@@ -6,6 +6,8 @@ import { AuthService } from '../../../core/services/auth';
 import { LocalPartnerServiceManager } from '../../../core/services/local-partner-service-manager';
 import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { NotificationBellComponent } from '../../../shared/notification-bell/notification-bell.component'; // ← AJOUTER CET IMPORT
+
 
 type ServiceType = 'COLLABORATION' | 'INVESTMENT' | 'TOURIST';
 type ViewMode = 'list' | 'form';
@@ -13,7 +15,7 @@ type ViewMode = 'list' | 'form';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, HttpClientModule],
+  imports: [CommonModule, FormsModule, NavbarComponent, HttpClientModule,NotificationBellComponent ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })

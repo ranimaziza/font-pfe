@@ -657,3 +657,20 @@ app-navbar {
   background: #f3f4f6;
   color: #374151;
 }
+
+/* dashboard.css - Ajouter à la fin du fichier */
+
+/* ── Header Actions ─────────────────────────────────────── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Ajustement pour mobile */
+@media (max-width: 600px) {
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
