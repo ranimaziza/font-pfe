@@ -69,7 +69,12 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/touriste/dashboard/dashboard')
           .then(m => m.DashboardComponent)
-      }
+      },
+    {
+      path: 'services',
+      loadComponent: () => import('./features/touriste/services/services.component')
+        .then(m => m.TouristServicesComponent)
+    }
     ]
   },
 

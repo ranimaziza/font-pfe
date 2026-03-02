@@ -29,13 +29,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
       { label: 'Dashboard', route: '/admin/dashboard', icon: '🛡️' }
     ],
     [Role.TOURIST]: [
-      { label: 'Dashboard', route: '/touriste/dashboard', icon: '🏠' }
+      { label: 'Dashboard', route: '/touriste/dashboard', icon: '🏠' },
+      { label: 'Services', route: '/touriste/services', icon: '🗺️' }
     ],
     [Role.INVESTOR]: [
-      { label: 'Dashboard', route: '/investisseur/dashboard', icon: '🏠' }
+      { label: 'Dashboard', route: '/investisseur/dashboard', icon: '🏠' },
+      { label: 'Services', route: '/investisseur/services', icon: '📈' }
+
     ],
     [Role.PARTNER]: [
-      { label: 'Dashboard', route: '/partenaire-economique/dashboard', icon: '🏠' }
+      { label: 'Dashboard', route: '/partenaire-economique/dashboard', icon: '🏠' },
+      { label: 'Services', route: '/partenaire-economique/services', icon: '🤝' }
+
     ],
     [Role.LOCAL_PARTNER]: [
       { label: 'Dashboard', route: '/partenaire-local/dashboard', icon: '🏠' }
