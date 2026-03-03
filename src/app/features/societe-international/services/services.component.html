@@ -1,0 +1,170 @@
+<div class="page-layout">
+  <app-navbar></app-navbar>
+  <div class="page-main">
+    <div class="page-content">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <a routerLink="/societe-international/dashboard" class="back-link">← Back to Dashboard</a>
+          <h1>Available Services</h1>
+          <p class="subtitle">Collaboration and investment opportunities for your company</p>
+        </div>
+        <app-notification-bell></app-notification-bell>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'collaboration'" (click)="switchTab('collaboration')">Collaboration</button>
+        <button class="tab-btn" [class.active]="activeTab === 'investment'" (click)="switchTab('investment')">Investment</button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-wrapper">
+        <div class="search-box">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearch()"
+            placeholder="Search by name, description, region, contact..."
+            class="search-input"
+          />
+          <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">✕</button>
+        </div>
+        <span class="results-count" *ngIf="searchQuery">
+          {{ filtered.length }} result{{ filtered.length !== 1 ? 's' : '' }} found
+        </span>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading services...</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="!loading && filtered.length === 0">
+        <div class="empty-icon">{{ searchQuery ? '🔍' : (activeTab === 'collaboration' ? '🤝' : '📈') }}</div>
+        <h3>{{ searchQuery ? 'No results for "' + searchQuery + '"' : (activeTab === 'collaboration' ? 'No collaboration services available yet' : 'No investment services available yet') }}</h3>
+        <p>{{ searchQuery ? 'Try different keywords' : 'Check back later for new opportunities' }}</p>
+        <button class="clear-search-btn" *ngIf="searchQuery" (click)="clearSearch()">Clear search</button>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="services-grid" *ngIf="!loading && filtered.length > 0">
+        <div class="service-card" *ngFor="let s of filtered">
+          <!-- Collaboration Card -->
+          <ng-container *ngIf="activeTab === 'collaboration'">
+            <div class="card-top collaboration-top">
+              <span class="card-type">🤝 Collaboration</span>
+              <span class="card-domain" *ngIf="s.activityDomain">{{ s.activityDomain }}</span>
+            </div>
+            <div class="card-body">
+              <h3>{{ s.name }}</h3>
+              <p class="card-desc">{{ (s.description || '') | slice:0:120 }}{{ (s.description?.length || 0) > 120 ? '...' : '' }}</p>
+
+              <div class="card-meta" *ngIf="s.region">
+                <span class="meta-label">📍 Region:</span>
+                <span>{{ s.region.name }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.collaborationType">
+                <span class="meta-label">🔗 Type:</span>
+                <span>{{ s.collaborationType }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.collaborationDuration">
+                <span class="meta-label">⏱ Duration:</span>
+                <span>{{ s.collaborationDuration }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.expectedBenefits">
+                <span class="meta-label">✨ Benefits:</span>
+                <span>{{ s.expectedBenefits | slice:0:60 }}...</span>
+              </div>
+              <div class="card-meta" *ngIf="s.contactPerson">
+                <span class="meta-label">👤 Contact:</span>
+                <span>{{ s.contactPerson }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.provider">
+                <span class="meta-label">🏢 Provider:</span>
+                <span>{{ s.provider.firstName }} {{ s.provider.lastName }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.address">
+                <span class="meta-label">🏠 Address:</span>
+                <span>{{ s.address }}</span>
+              </div>
+
+              <div class="card-contact" *ngIf="s.provider">
+                <button class="contact-btn" (click)="contactProvider(s.provider)">
+                  <span>💬</span> Contact Provider
+                </button>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="availability-badge collaboration-badge">{{ s.availability }}</span>
+              <span class="price">{{ s.price | number }} TND</span>
+            </div>
+          </ng-container>
+
+          <!-- Investment Card -->
+          <ng-container *ngIf="activeTab === 'investment'">
+            <div class="card-top investment-top">
+              <span class="card-type">📈 Investment</span>
+              <span class="card-zone" *ngIf="s.zone">{{ s.zone }}</span>
+            </div>
+            <div class="card-body">
+              <h3>{{ s.title || s.name }}</h3>
+              <p class="card-desc">{{ (s.description || '') | slice:0:120 }}{{ (s.description?.length || 0) > 120 ? '...' : '' }}</p>
+
+              <div class="card-meta" *ngIf="s.region">
+                <span class="meta-label">📍 Region:</span>
+                <span>{{ s.region.name }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.totalAmount">
+                <span class="meta-label">💰 Total Amount:</span>
+                <span>{{ s.totalAmount | number }} TND</span>
+              </div>
+              <div class="card-meta" *ngIf="s.minimumAmount">
+                <span class="meta-label">📊 Min Investment:</span>
+                <span>{{ s.minimumAmount | number }} TND</span>
+              </div>
+              <div class="card-meta" *ngIf="s.deadlineDate">
+                <span class="meta-label">📅 Deadline:</span>
+                <span>{{ s.deadlineDate }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.projectDuration">
+                <span class="meta-label">⏱ Duration:</span>
+                <span>{{ s.projectDuration }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.contactPerson">
+                <span class="meta-label">👤 Contact:</span>
+                <span>{{ s.contactPerson }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.economicSector">
+                <span class="meta-label">🏭 Sector:</span>
+                <span>{{ s.economicSector.name }}</span>
+              </div>
+              <div class="card-meta" *ngIf="s.provider">
+                <span class="meta-label">🏢 Provider:</span>
+                <span>{{ s.provider.firstName }} {{ s.provider.lastName }}</span>
+              </div>
+
+              <div class="card-contact" *ngIf="s.provider">
+                <button class="contact-btn" (click)="contactProvider(s.provider)">
+                  <span>💬</span> Contact Provider
+                </button>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="availability-badge investment-badge">{{ s.availability }}</span>
+              <span class="price">{{ s.price | number }} TND</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

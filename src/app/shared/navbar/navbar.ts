@@ -30,23 +30,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
     ],
     [Role.TOURIST]: [
       { label: 'Dashboard', route: '/touriste/dashboard', icon: '🏠' },
-      { label: 'Services', route: '/touriste/services', icon: '🗺️' }
+      { label: 'Services', route: '/touriste/services', icon: '🗺️' },
+      { label: 'Messagerie', route: '/messagerie', icon: '💬' }
     ],
     [Role.INVESTOR]: [
       { label: 'Dashboard', route: '/investisseur/dashboard', icon: '🏠' },
-      { label: 'Services', route: '/investisseur/services', icon: '📈' }
-
+      { label: 'Services', route: '/investisseur/services', icon: '📈' },
+      { label: 'Messagerie', route: '/messagerie', icon: '💬' }
     ],
     [Role.PARTNER]: [
       { label: 'Dashboard', route: '/partenaire-economique/dashboard', icon: '🏠' },
-      { label: 'Services', route: '/partenaire-economique/services', icon: '🤝' }
-
+      { label: 'Services', route: '/partenaire-economique/services', icon: '🤝' },
+      { label: 'Messagerie', route: '/messagerie', icon: '💬' }
     ],
     [Role.LOCAL_PARTNER]: [
-      { label: 'Dashboard', route: '/partenaire-local/dashboard', icon: '🏠' }
+      { label: 'Dashboard', route: '/partenaire-local/dashboard', icon: '🏠' },
+      { label: 'Messagerie', route: '/partenaire-local/messagerie', icon: '💬' }
     ],
     [Role.INTERNATIONAL_COMPANY]: [
-      { label: 'Dashboard', route: '/societe-international/dashboard', icon: '🏠' }
+      { label: 'Dashboard', route: '/societe-international/dashboard', icon: '🏠' },
+      { label: 'Services',  route: '/societe-international/services',  icon: '🌐' },
+      { label: 'Messagerie', route: '/societe-international/messagerie', icon: '💬' }
     ]
   };
 

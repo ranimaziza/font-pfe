@@ -1,24 +1,27 @@
 <div class="dashboard-container">
-  <!-- Navbar with clickable profile -->
   <app-navbar></app-navbar>
-
-  <!-- Main content -->
   <main class="dashboard-content">
-    <h1>International Company Dashboard</h1>
-    <p>Expand your presence in the Tunisian market.</p>
-    
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <h1>International Company Dashboard</h1>
+        <p>Manage your collaborations and investments.</p>
+      </div>
+      <app-notification-bell></app-notification-bell>
+    </div>
+
     <div class="stats-cards">
       <div class="stat-card">
-        <h3>Active Investments</h3>
-        <p class="stat-number">0</p>
+        <h3>Collaboration Services</h3>
+        <p class="stat-number">{{ collaborationCount }}</p>
       </div>
       <div class="stat-card">
-        <h3>Market Opportunities</h3>
-        <p class="stat-number">0</p>
+        <h3>Investment Services</h3>
+        <p class="stat-number">{{ investmentCount }}</p>
       </div>
       <div class="stat-card">
-        <h3>Local Partners</h3>
-        <p class="stat-number">0</p>
+        <h3>Unread Messages</h3>
+        <p class="stat-number">{{ unreadCount }}</p>
       </div>
     </div>
   </main>

@@ -59,7 +59,6 @@ app-navbar {
   margin-bottom: 2rem;
 }
 
-/* Stats Cards */
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -182,7 +181,6 @@ app-navbar {
   }
 }
 
-/* Animation pour les cartes */
 .stat-card {
   animation: cardAppear 0.5s ease;
   animation-fill-mode: both;

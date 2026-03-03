@@ -126,7 +126,11 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/partenaire-local/dashboard/dashboard')
           .then(m => m.DashboardComponent)
-      }
+      },    {
+      path: 'messagerie',
+      loadComponent: () => import('./features/partenaire-local/messagerie/partenaire-local-messagerie.component')
+        .then(m => m.PartenaireLocalMessagerieComponent)
+    }
     ]
   },
 
@@ -140,14 +144,23 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/societe-international/dashboard/dashboard')
           .then(m => m.DashboardComponent)
+      },
+    {
+      path: 'services',   // <-- AJOUTER CETTE ROUTE
+      loadComponent: () => import('./features/societe-international/services/services.component')
+        .then(m => m.InternationalCompanyServicesComponent)
+    },{
+        path: 'messagerie',
+        loadComponent: () => import('./features/societe-international/messagerie/societe-international-messagerie.component')
+          .then(m => m.SocieteInternationalMessagerieComponent)
       }
     ]
   },{
-    path: 'messagerie',
-    component: InboxComponent,
-    // Optionally add your auth guard:
-    // canActivate: [AuthGuard]
-  },
+  path: 'messagerie',
+  loadComponent: () => import('./shared/inbox/inbox.component')
+    .then(m => m.InboxComponent),
+  canActivate: [authGuard]
+},
 
   // ── Wildcard ──────────────────────────────────────
   { path: '**', redirectTo: '' }
